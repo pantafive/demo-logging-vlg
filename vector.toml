@@ -1,0 +1,20 @@
+[sources.docker]
+type = "docker_logs"
+docker_host = "/var/run/docker.sock"
+
+[transforms.json]
+type = "json_parser"
+inputs = ["docker"]
+target_field = "json"
+
+[sinks.console]
+type = "console"
+inputs = ["json"]
+encoding.codec = "json"
+
+[sinks.loki_sync_id]
+type = "loki"
+inputs = ["json"]
+encoding = "json"
+labels.event = "log"
+endpoint = "http://loki:3100"

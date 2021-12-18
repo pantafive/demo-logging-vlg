@@ -1,0 +1,35 @@
+version: "2.4"
+
+networks:
+  loki:
+
+services:
+  app:
+    build:
+      context: ./
+
+  vector:
+    image: timberio/vector:0.18.1-alpine
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./vector.toml:/etc/vector/vector.toml
+    ports:
+      - "127.0.0.1:8383:8383"
+
+  loki:
+    image: grafana/loki:latest
+    volumes:
+      - ./loki-config.yaml:/mnt/config/loki-config.yaml
+    ports:
+      - "127.0.0.1:3100:3100"
+    command: -config.file=/mnt/config/loki-config.yaml
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - "127.0.0.1:3000:3000"
